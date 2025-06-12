@@ -1,7 +1,7 @@
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
-import java.util.ArrayList;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -98,24 +98,34 @@ public class Main {
             } else {
                 System.out.println("Oops, something went wrong. Please stop the program and try again.");
             }
+
+            //get related events
+            if(singleEvent.optJSONArray("linkedEvents") != null){
+                JSONArray linkedArray = singleEvent.getJSONArray("linkedEvents");
+                System.out.println("\tLinked Events:");
+                for(int j = 0; j<linkedArray.length(); j++){
+                    System.out.println("\t\tEvent "+j+": "+formatEvent(linkedArray.getJSONObject(j)));
+                }
+                //while loop to look at events specifically?
+
+            }
+            System.out.println("Please enter the index of the event you would like more information on or type 'end' to finish.");
+            eventString = scan.nextLine();
         }
         System.exit(0);
-
-
-//        System.out.println(array.getJSONObject(0));
-
-
     }
+
+
+    //Gets JSONArray from provided URL
     public static JSONArray URLToJSON(String URLString){
         try {
-//            int index = URLString.indexOf('?');
-//            eventType = URLString.substring(index-3, index);
-//            System.out.println(eventType);
+            //Convert string to URL
             URI uri = URI.create(URLString);
             URL url = uri.toURL();
+
+            //Connect and pull data from URL and store in String
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -125,15 +135,11 @@ public class Main {
                     response.append(line);
                 }
                 reader.close();
-//                System.out.println(response.toString());
-                String newJSONString = response.toString()/*.replace("\"","\\\"")*/;
-//            String anotherNewJSONString = newJSONString.substring(1, response.toString().length()-2);
-//                System.out.println(newJSONString);
+                String newJSONString = response.toString();
 
+                //convert String back to JSON Array
                 try {
-                    JSONArray object = new JSONArray(newJSONString);
-//                    System.out.println(object.toString(2));
-                    return object;
+                    return new JSONArray(newJSONString);
                 } catch (JSONException e) {
                     System.out.println("JSON creation failed: "+e);
                     return null;
@@ -145,12 +151,13 @@ public class Main {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(); /*Okay because this is not production software*/
             return null;
         }
     }
 
-    public static String formattedDate(String date){ //still working on based on what I need, format is yyyy-MM-ddThh:mmZ
+    //changes date format to something more readable
+    public static String formattedDate(String date){ //date is in form yyyy-MM-ddThh:mmZ
         String year = date.substring(0,4);
         String month = date.substring(5,7);
         String day = date.substring(8,10);
@@ -159,7 +166,11 @@ public class Main {
         return hour+":"+minute+" UTC on "+month+"/"+day+"/"+year;
     }
 
-    public static String relatedEvents(){
-        return "";
+    //formats "linkedEvent" into something more readable
+    public static String formatEvent(JSONObject event){
+        String jsonString = event.getString("activityID"); //id is in form yyyy-MM-ddThh-mm-ss-EVENTTYPE-???
+        String date = formattedDate(jsonString.substring(0,17));
+        String type = jsonString.substring(20,24);
+        return type+" at "+date;
     }
 }
