@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.Objects;
 import java.util.Scanner;
 
 
@@ -43,12 +44,26 @@ public class Main {
         JSONArray array = URLToJSON(url);
 
         //Gets and prints initial info for each event in array
-        for(int i = 0; i<array.length(); i++){
+        for(int i = 0; i< Objects.requireNonNull(array).length(); i++){
             JSONObject event = array.getJSONObject(i);
 
             System.out.print(eventType +" "+i+": ");
             System.out.print(formattedDate(event.getString(timeKey))+"; ");
+
+            //Get event specific info
             if(eventType.equals("CME")){
+                int bestAnalysis = -1;
+                String type = "?";
+                if(event.optJSONArray("cmeAnalyses").length() != 0) {
+                    JSONArray cmeAnalyses = event.getJSONArray("cmeAnalyses");
+                    for (int k = 0; k < cmeAnalyses.length(); k++) {
+                        if (cmeAnalyses.getJSONObject(k).getBoolean("isMostAccurate")) {
+                            bestAnalysis = k;
+                        }
+                    }
+                    type = cmeAnalyses.getJSONObject(bestAnalysis).getString("type");
+                }
+                System.out.println("Type "+type );
                 
             } else if (eventType.equals("GST")) {
                 
@@ -75,12 +90,18 @@ public class Main {
         System.out.println("Please enter the index of the event you would like more information on or type 'end' to finish.");
         String eventString = scan.nextLine();
         while(!eventString.equalsIgnoreCase("end")) {
+
+            //Get correct event
             int eventIndex = Integer.parseInt(eventString);
             JSONObject singleEvent = array.getJSONObject(eventIndex);
             System.out.println(eventType + " " + eventIndex + ":");
-            System.out.println("\tStart time: " + formattedDate(singleEvent.getString("startTime")));
-            if (eventType.equals("CME")) {
 
+            //Get time
+            System.out.println("\tTime: " + formattedDate(singleEvent.getString("startTime")));
+
+            //Event specific analysis
+            if (eventType.equals("CME")) {
+            //get different analyses from cme analyses
             } else if (eventType.equals("GST")) {
 
             } else if (eventType.equals("IPS")) {
