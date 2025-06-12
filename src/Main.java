@@ -96,40 +96,11 @@ public class Main {
             JSONObject singleEvent = array.getJSONObject(eventIndex);
             System.out.println(eventType + " " + eventIndex + ":");
 
-            //Get time
-            System.out.println("\tTime: " + formattedDate(singleEvent.getString("startTime")));
-
             //Event specific analysis
-            if (eventType.equals("CME")) {
-            //get different analyses from cme analyses
-            } else if (eventType.equals("GST")) {
-
-            } else if (eventType.equals("IPS")) {
-
-            } else if (eventType.equals("FLR")) {
-
-            } else if (eventType.equals("SEP")) {
-
-            } else if (eventType.equals("MPC")) {
-
-            } else if (eventType.equals("RBE")) {
-
-            } else if (eventType.equals("HSS")) {
-
-            } else {
-                System.out.println("Oops, something went wrong. Please stop the program and try again.");
-            }
+            printSpecificData(singleEvent,eventType);
 
             //get related events
-            if(singleEvent.optJSONArray("linkedEvents") != null){
-                JSONArray linkedArray = singleEvent.getJSONArray("linkedEvents");
-                System.out.println("\tLinked Events:");
-                for(int j = 0; j<linkedArray.length(); j++){
-                    System.out.println("\t\tEvent "+j+": "+formatEvent(linkedArray.getJSONObject(j)));
-                }
-                //while loop to look at events specifically?
 
-            }
             System.out.println("Please enter the index of the event you would like more information on or type 'end' to finish.");
             eventString = scan.nextLine();
         }
@@ -193,5 +164,72 @@ public class Main {
         String date = formattedDate(jsonString.substring(0,17));
         String type = jsonString.substring(20,24);
         return type+" at "+date;
+    }
+
+    //prints specific event data
+    public static void printSpecificData(JSONObject event, String eventType){
+        //Create new scanner
+        Scanner scan = new Scanner(System.in);
+
+        //Get time
+        String timeKey = "";
+        if (eventType.equals("CME") || eventType.equals("GST")) {
+            timeKey = "startTime";
+        } else if (eventType.equals("IPS") || eventType.equals("SEP") || eventType.equals("MPC") || eventType.equals("RBE") || eventType.equals("HSS")) {
+            timeKey = "eventTime";
+        } else if (eventType.equals("FLR")) {
+            timeKey = "peakTime";
+        } else {
+            System.out.println("Oops, something went wrong");
+        }
+        System.out.println("\tTime: " + formattedDate(event.getString(timeKey)));
+
+        if (eventType.equals("CME")) {
+            //get different analyses from cme analyses
+        } else if (eventType.equals("GST")) {
+
+        } else if (eventType.equals("IPS")) {
+
+        } else if (eventType.equals("FLR")) {
+
+        } else if (eventType.equals("SEP")) {
+
+        } else if (eventType.equals("MPC")) {
+
+        } else if (eventType.equals("RBE")) {
+
+        } else if (eventType.equals("HSS")) {
+
+        } else {
+            System.out.println("Oops, something went wrong. Please stop the program and try again.");
+        }
+        if(event.optJSONArray("linkedEvents") != null){
+            JSONArray linkedArray = event.getJSONArray("linkedEvents");
+            System.out.println("\tLinked Events:");
+            for(int j = 0; j<linkedArray.length(); j++){
+                System.out.println("\t\tEvent "+j+": "+formatEvent(linkedArray.getJSONObject(j)));
+            }
+            //view related event or continue
+            System.out.println("Please type the number of the event you would like to view further, or type 'next' to continue.");
+            String relatedEventString = scan.nextLine();
+            while(!relatedEventString.equalsIgnoreCase("next")){
+                int singleRelInt = Integer.parseInt(relatedEventString);
+                JSONObject singleRelEvent = linkedArray.getJSONObject(singleRelInt);
+                String singleRelID = singleRelEvent.getString("activityID");
+                String year = singleRelID.substring(0,4);
+                String month = singleRelID.substring(5,7);
+                String day = singleRelID.substring(8,10);
+                String hour = singleRelID.substring(11,13);
+                String minute = singleRelID.substring(14,16);
+                String type = singleRelID.substring(22,26);
+                JSONArray relEventFinder = URLToJSON("https://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/"+eventType+"?startDate="+year+"-"+month+"-"+day+"&endDate="+year+"-"+month+"-"+day);
+                for(int i = 0; i< relEventFinder.length(); i++){
+                    JSONObject posRelEvent = relEventFinder.getJSONObject(i);
+                    String eventTime = posRelEvent.get
+                }
+
+            }
+        }
+
     }
 }
