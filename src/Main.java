@@ -58,6 +58,7 @@ public class Main {
                 System.out.println("Type "+type );
                 
             } else if (eventType.equals("GST")) {
+
                 
             }else if(eventType.equals("IPS")){
 
@@ -154,7 +155,7 @@ public class Main {
     public static String formatEvent(JSONObject event){
         String jsonString = event.getString("activityID"); //id is in form yyyy-MM-ddThh-mm-ss-EVENTTYPE-???
         String date = formattedDate(jsonString.substring(0,17));
-        String type = jsonString.substring(20,24);
+        String type = jsonString.substring(20,23);
         return type+" at "+date;
     }
 
@@ -165,11 +166,28 @@ public class Main {
 
         //Get time
         String timeKey = getTimeString(eventType);
-
         System.out.println("\tTime: " + formattedDate(event.getString(timeKey)));
+        if(event.optJSONArray("instruments") != null){
+            JSONArray instruments = event.getJSONArray("instruments");
+            System.out.println("\tInstruments:");
+            for(int k = 0; k < instruments.length(); k++){
+                System.out.println("\t\t"+instruments.getJSONObject(k).getString("displayName"));
+            }
+        }
 
         if (eventType.equals("CME")) {
-            //get different analyses from cme analyses
+            System.out.println("\tStrength:");
+            if(event.optJSONArray("cmeAnalyses").length() != 0) {
+                JSONArray cmeAnalyses = event.getJSONArray("cmeAnalyses");
+                for (int k = 0; k < cmeAnalyses.length(); k++) {
+                    System.out.print("\t\tType "+cmeAnalyses.getJSONObject(k).getString("type"));
+                    if (cmeAnalyses.getJSONObject(k).getBoolean("isMostAccurate")) {
+                       System.out.print(" **BEST**");
+                    }
+                    System.out.println();
+                }
+
+            }
         } else if (eventType.equals("GST")) {
 
         } else if (eventType.equals("IPS")) {
