@@ -228,6 +228,8 @@ public class Main {
         } else if (eventType.equals("IPS")) {
 
         } else if (eventType.equals("FLR")) {
+            System.out.println("\tClass type:");
+            System.out.println("\t\t"+event.getString("classType"));
 
         } else if (eventType.equals("SEP")) {
 
