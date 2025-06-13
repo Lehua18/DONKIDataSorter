@@ -9,8 +9,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Scanner;
-// finish relEvents; indenting; gahhhhhh
-
 
 
 public class Main {
@@ -21,11 +19,11 @@ public class Main {
         do {
             System.out.println("Please enter the type of event you would like to view:");
             eventType = scan.nextLine();
-            timeKey = getTimeString(eventType);
             //to get correct time key depending on event. Also functions to validate user entry
-
+            timeKey = getTimeString(eventType);
         }while (timeKey.isEmpty());
 
+        //Get data endpoints
         System.out.println("Please enter a start date in the form yyyy-MM-dd");
         String startDate = scan.nextLine();
         System.out.println("Please enter an end date in the form yyyy-MM-dd");
@@ -39,13 +37,15 @@ public class Main {
         for(int i = 0; i< Objects.requireNonNull(array).length(); i++){
             JSONObject event = array.getJSONObject(i);
 
+            //prints type and date
             System.out.print("\t"+eventType +" "+i+": ");
             System.out.print(formattedDate(event.getString(timeKey))+"; ");
 
-            //Get event specific info
+            //Get and print event specific info
             if(eventType.equals("CME")){
                 int bestAnalysis = -1;
                 String type = "?";
+                //Only prints the type associated with the most accurate analysis
                 if(event.optJSONArray("cmeAnalyses").length() != 0) {
                     JSONArray cmeAnalyses = event.getJSONArray("cmeAnalyses");
                     for (int k = 0; k < cmeAnalyses.length(); k++) {
@@ -58,8 +58,19 @@ public class Main {
                 System.out.println("Type "+type );
                 
             } else if (eventType.equals("GST")) {
+                //Only prints the highest KP index
+                if(event.optJSONArray("allKpIndex") != null) {
+                    double highestKP = 0;
+                    JSONArray KPIndices = event.getJSONArray("allKpIndex");
+                    for (int j = 0; j < KPIndices.length(); j++){
+                        if(KPIndices.getJSONObject(j).getDouble("kpIndex") > highestKP){
+                            highestKP = KPIndices.getJSONObject(j).getDouble("kpIndex");
+                        }
+                    }
+                    System.out.println("KP Index = "+highestKP);
+                }
 
-                
+
             }else if(eventType.equals("IPS")){
 
             }else if(eventType.equals("FLR")){
@@ -74,7 +85,7 @@ public class Main {
 
             }else{
                 System.out.println("Oops, something went wrong. Please stop the program and try again.");
-                break; //sorry Mr. Zickert, I'll find a better way...
+                System.exit(1);
             }
             System.out.println();
         }
@@ -164,7 +175,7 @@ public class Main {
         //Create new scanner
         Scanner scan = new Scanner(System.in);
 
-        //Get time
+        //Get and print time
         String timeKey = getTimeString(eventType);
         System.out.println("\tTime: " + formattedDate(event.getString(timeKey)));
         if(event.optJSONArray("instruments") != null){
@@ -175,10 +186,20 @@ public class Main {
             }
         }
 
+        //Print Location if available
+        if(event.optString("sourceLocation") != null && !event.optString("sourceLocation").isEmpty()){
+            String location = event.getString("sourceLocation");
+            System.out.println("\tLocation:");
+            System.out.println("\t\t"+location.substring(1,3)+"°"+location.charAt(0)+", "+location.substring(4)+"°"+location.charAt(3));
+        }
+
+        //print data specific to event type
         if (eventType.equals("CME")) {
             System.out.println("\tStrength:");
             if(event.optJSONArray("cmeAnalyses").length() != 0) {
                 JSONArray cmeAnalyses = event.getJSONArray("cmeAnalyses");
+
+                //prints all different types from different analyses
                 for (int k = 0; k < cmeAnalyses.length(); k++) {
                     System.out.print("\t\tType "+cmeAnalyses.getJSONObject(k).getString("type"));
                     if (cmeAnalyses.getJSONObject(k).getBoolean("isMostAccurate")) {
@@ -187,8 +208,22 @@ public class Main {
                     System.out.println();
                 }
 
+                //prints any notes entered with analyses
+                System.out.println("\tNotes:");
+                for(int l = 0; l<cmeAnalyses.length(); l++){
+                    System.out.println("\t\t"+cmeAnalyses.getJSONObject(l).optString("note"));
+                }
+
             }
         } else if (eventType.equals("GST")) {
+            //prints all measured kp indices and times recorded
+            if(event.optJSONArray("allKpIndex") != null) {
+                System.out.println("\tKP Index:");
+                JSONArray KPIndices = event.getJSONArray("allKpIndex");
+                for (int j = 0; j < KPIndices.length(); j++){
+                    System.out.println("\t\t"+KPIndices.getJSONObject(j).getDouble("kpIndex")+" at "+ formattedDate(KPIndices.getJSONObject(j).getString("observedTime"))+" from "+KPIndices.getJSONObject(j).getString("source"));
+                }
+            }
 
         } else if (eventType.equals("IPS")) {
 
@@ -204,14 +239,23 @@ public class Main {
 
         } else {
             System.out.println("Oops, something went wrong. Please stop the program and try again.");
+            System.exit(1);
         }
+
+        //Print any notes
+        if(event.optString("note") != null){
+            System.out.println("\tNote:");
+            System.out.println("\t\t"+event.getString("note"));
+        }
+
+        //Print related events
         if(event.optJSONArray("linkedEvents") != null){
             JSONArray linkedArray = event.getJSONArray("linkedEvents");
             System.out.println("\tLinked Events:");
             for(int j = 0; j<linkedArray.length(); j++){
                 System.out.println("\t\tEvent "+j+": "+formatEvent(linkedArray.getJSONObject(j)));
             }
-            //view related event or continue
+            //view more info on related events or continue
             System.out.println("Please type the number of the event you would like to view further, or type 'next' to continue.");
             String relatedEventString = scan.nextLine();
             while(!relatedEventString.equalsIgnoreCase("next")){
@@ -235,6 +279,7 @@ public class Main {
                     }
                 }
                 if(relEvent != null) {
+                    System.out.println();
                     System.out.println("\t"+newType+":");
                     printSpecificData(relEvent, newType);
                 }else{
