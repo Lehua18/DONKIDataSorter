@@ -1,7 +1,6 @@
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,6 +9,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Scanner;
+// finish relEvents; indenting; gahhhhhh
 
 
 
@@ -21,17 +21,9 @@ public class Main {
         do {
             System.out.println("Please enter the type of event you would like to view:");
             eventType = scan.nextLine();
-
+            timeKey = getTimeString(eventType);
             //to get correct time key depending on event. Also functions to validate user entry
-            if (eventType.equals("CME") || eventType.equals("GST")) {
-                timeKey = "startTime";
-            } else if (eventType.equals("IPS") || eventType.equals("SEP") || eventType.equals("MPC") || eventType.equals("RBE") || eventType.equals("HSS")) {
-                timeKey = "eventTime";
-            } else if (eventType.equals("FLR")) {
-                timeKey = "peakTime";
-            } else {
-                System.out.println("You have not entered a valid event type. Please try again");
-            }
+
         }while (timeKey.isEmpty());
 
         System.out.println("Please enter a start date in the form yyyy-MM-dd");
@@ -47,7 +39,7 @@ public class Main {
         for(int i = 0; i< Objects.requireNonNull(array).length(); i++){
             JSONObject event = array.getJSONObject(i);
 
-            System.out.print(eventType +" "+i+": ");
+            System.out.print("\t"+eventType +" "+i+": ");
             System.out.print(formattedDate(event.getString(timeKey))+"; ");
 
             //Get event specific info
@@ -172,16 +164,8 @@ public class Main {
         Scanner scan = new Scanner(System.in);
 
         //Get time
-        String timeKey = "";
-        if (eventType.equals("CME") || eventType.equals("GST")) {
-            timeKey = "startTime";
-        } else if (eventType.equals("IPS") || eventType.equals("SEP") || eventType.equals("MPC") || eventType.equals("RBE") || eventType.equals("HSS")) {
-            timeKey = "eventTime";
-        } else if (eventType.equals("FLR")) {
-            timeKey = "peakTime";
-        } else {
-            System.out.println("Oops, something went wrong");
-        }
+        String timeKey = getTimeString(eventType);
+
         System.out.println("\tTime: " + formattedDate(event.getString(timeKey)));
 
         if (eventType.equals("CME")) {
@@ -221,15 +205,42 @@ public class Main {
                 String day = singleRelID.substring(8,10);
                 String hour = singleRelID.substring(11,13);
                 String minute = singleRelID.substring(14,16);
-                String type = singleRelID.substring(22,26);
-                JSONArray relEventFinder = URLToJSON("https://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/"+eventType+"?startDate="+year+"-"+month+"-"+day+"&endDate="+year+"-"+month+"-"+day);
+                String newType = singleRelID.substring(20,23);
+                String relTimeKey = getTimeString(newType);
+                JSONArray relEventFinder = URLToJSON("https://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/"+newType+"?startDate="+year+"-"+month+"-"+day+"&endDate="+year+"-"+month+"-"+day);
+                JSONObject relEvent = null;
                 for(int i = 0; i< relEventFinder.length(); i++){
                     JSONObject posRelEvent = relEventFinder.getJSONObject(i);
-                    String eventTime = posRelEvent.get
+                    String eventTime = posRelEvent.getString(relTimeKey);
+                    if(eventTime.substring(11,16).equals(hour+":"+minute)){
+                        relEvent = posRelEvent;
+                    }
                 }
-
+                if(relEvent != null) {
+                    System.out.println("\t"+newType+":");
+                    printSpecificData(relEvent, newType);
+                }else{
+                    System.out.println("Error getting related event");
+                }
+                System.out.println("Please type the number of the event you would like to view further, or type 'next' to continue.");
+                relatedEventString = scan.nextLine();
             }
         }
 
+    }
+
+    //get name of time variable
+    public static String getTimeString(String eventType){
+        String timeKey = "";
+        if (eventType.equals("CME") || eventType.equals("GST")) {
+            timeKey = "startTime";
+        } else if (eventType.equals("IPS") || eventType.equals("SEP") || eventType.equals("MPC") || eventType.equals("RBE") || eventType.equals("HSS")) {
+            timeKey = "eventTime";
+        } else if (eventType.equals("FLR")) {
+            timeKey = "beginTime";
+        } else {
+            System.out.println("You have not entered a valid event type, or something else went wrong. Please try again");
+        }
+        return timeKey;
     }
 }
