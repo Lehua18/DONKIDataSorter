@@ -74,6 +74,7 @@ public class Main {
             }else if(eventType.equals("IPS")){
 
             }else if(eventType.equals("FLR")){
+                System.out.println("Type = "+event.getString("classType"));
 
             }else if(eventType.equals("SEP")){
 
@@ -177,7 +178,7 @@ public class Main {
 
         //Get and print time
         String timeKey = getTimeString(eventType);
-        System.out.println("\tTime: " + formattedDate(event.getString(timeKey)));
+        System.out.println("\tStart time: " + formattedDate(event.getString(timeKey)));
         if(event.optJSONArray("instruments") != null){
             JSONArray instruments = event.getJSONArray("instruments");
             System.out.println("\tInstruments:");
@@ -228,6 +229,14 @@ public class Main {
         } else if (eventType.equals("IPS")) {
 
         } else if (eventType.equals("FLR")) {
+            if(event.optString("peakTime") != null) {
+                System.out.println("\tPeak Time:");
+                System.out.println("\t\t" + formattedDate(event.getString("peakTime")));
+            }
+            if(event.optString("endTime") != null){
+                System.out.println("\tEnd time:");
+                System.out.println("\t\t"+formattedDate(event.getString("endTime")));
+            }
             System.out.println("\tClass type:");
             System.out.println("\t\t"+event.getString("classType"));
 
@@ -247,7 +256,7 @@ public class Main {
         //Print any notes
         if(event.optString("note") != null){
             System.out.println("\tNote:");
-            System.out.println("\t\t"+event.getString("note"));
+            System.out.println("\t\t"+event.optString("note"));
         }
 
         //Print related events
@@ -295,7 +304,7 @@ public class Main {
     }
 
     //get name of time variable
-    public static String getTimeString(String eventType){
+    public static String getTimeString(String eventType) {
         String timeKey = "";
         if (eventType.equals("CME") || eventType.equals("GST")) {
             timeKey = "startTime";
@@ -303,6 +312,8 @@ public class Main {
             timeKey = "eventTime";
         } else if (eventType.equals("FLR")) {
             timeKey = "beginTime";
+//        } else if (eventType.equals("ALL")) {
+//            timeKey = "ALL";
         } else {
             System.out.println("You have not entered a valid event type, or something else went wrong. Please try again");
         }
