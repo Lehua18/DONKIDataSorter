@@ -10,7 +10,9 @@ and prints that data in an easy-to-use format.
 
 ## How to use
 ### Download
-Please download the entire project folder (SunData) to your computer
+Please download the entire project folder (SunData) to your computer.
+When IntelliJ opens, either click the 'open' button in the top right of the screen or,
+if IntelliJ opens a preexisting project, click the hamburger in the top left, and go to Files -> Open.
 ### Use
 
 [![Watch the video](Video/Thumbnail.png)](https://youtu.be/SvB722k2_Bg)
