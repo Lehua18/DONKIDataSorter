@@ -12,9 +12,11 @@ and prints that data in an easy-to-use format.
 ### Download
 eee
 ### Use
-<video width="320" height="240" controls>
-  <source src="Video/READMEVideo.mp4" type="video/mp4">
-</video>
+
+[![Watch the video](Video/Thumbnail.png)](Video/READMEVideo.mp4)
+
+[If it doesn't show, download the video here](Video/READMEVideo.mp4)
+
 
 Upon running the program, you will be prompted to enter an event type. These types must be
 entered as their three letter 'key' for the program to function. The keys are as follows:

@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+java {
+    sourceCompatibility = '24'
+    targetCompatibility = '24'
+
+}
+
+
+
+repositories {
+    mavenCentral() // This is where Gradle will look for libraries
+}
+
+dependencies {
+    // Example: Apache Commons Math
+    implementation 'org.json:json:20231013'
+}
+
+application {
+    mainClass = 'Main'
+}
