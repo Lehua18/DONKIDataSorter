@@ -10,12 +10,12 @@ and prints that data in an easy-to-use format.
 
 ## How to use
 ### Download
-eee
+Please download the entire project folder (SunData) to your computer
 ### Use
 
-[![Watch the video](Video/Thumbnail.png)](Video/READMEVideo.mp4)
+[![Watch the video](Video/Thumbnail.png)](https://youtu.be/SvB722k2_Bg)
 
-[If it doesn't show, download the video here](Video/READMEVideo.mp4)
+[If it doesn't show, view the video here](https://youtu.be/SvB722k2_Bg)
 
 
 Upon running the program, you will be prompted to enter an event type. These types must be
