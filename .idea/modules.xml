@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SunData.iml" filepath="$PROJECT_DIR$/SunData.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DONKIDataSorter.iml" filepath="$PROJECT_DIR$/DONKIDataSorter.iml" />
     </modules>
   </component>
 </project>
