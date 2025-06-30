@@ -12,11 +12,10 @@ java {
 
 
 repositories {
-    mavenCentral() // This is where Gradle will look for libraries
+    mavenCentral()
 }
 
 dependencies {
-    // Example: Apache Commons Math
     implementation 'org.json:json:20231013'
 }
 

@@ -53,7 +53,9 @@ public class Main {
                             bestAnalysis = k;
                         }
                     }
-                    type = cmeAnalyses.getJSONObject(bestAnalysis).getString("type");
+                    if(bestAnalysis != -1) {
+                        type = cmeAnalyses.getJSONObject(bestAnalysis).getString("type");
+                    }
                 }
                 System.out.println("Type "+type );
                 
